@@ -80,6 +80,10 @@ void print_list(node* n) {
 }
 
 int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: ./hw1-1 the_length_of_list\n");
+        return 0;
+    }
     int num = atoi(argv[1]);
     int* record = (int*) malloc(sizeof(int) * num);
     memset(record, 0, sizeof(int) * num);
