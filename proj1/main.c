@@ -70,10 +70,12 @@ link_with_cut(freqlist* fl, int flag)
     freqlist* ret = init_freqlist(NULL, fl->k + 1, fl->size);
     freqitem* pi = fl->list.next;
     bool enter_cycle = false;
-    while (pi->next) {
+    while (pi && pi->next) {
+        // printf("new pi at %p\n", pi);
         enter_cycle = true;
         freqitem* pj = pi->next;
         while (pj) {
+            // printf("new pj at %p\n", pj);
             // printf("comb\n");
             itemset comb = conjunct(pi->items, pj->items, fl->size, fl->k + 1, ALLOC);
             if (comb == NULL) {
@@ -116,21 +118,29 @@ link_with_cut(freqlist* fl, int flag)
                 }
                 free(nos);
             }
-
+            
             if (pass_sup && pass_child) {
+                // printf("before insert comb %p\n", comb);
                 insert_freqlist(ret, comb, sup);
             } else {
+                // printf("before free comb %p\n", comb);
+                // print_itemset(comb, fl->size);;
                 free(comb);
+                // printf("after free comb %p\n", comb);
             }
 
             pj = pj->next;
+            // printf("pj renew OK\n");
         }
         pi = pi->next;
+        // printf("pi renew OK, new pi: %p, next: %p\n", pi, pi->next);
+        // puts("OK");
     }
 
     if (!enter_cycle || ret->len == 0) {
         // printf("no next\n");
         free(ret);
+        // puts("free ret");
         return NULL;
     }
     return ret;

@@ -89,6 +89,8 @@ scan_db(database db, int minsup)
 void
 free_db(database* db)
 {
+    if (db == NULL)
+        return;
     dbitem* ptr = db->list.next;
     while (ptr) {
         dbitem* tmp = ptr;

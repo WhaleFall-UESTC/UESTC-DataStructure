@@ -19,8 +19,8 @@ void
 insert_freqlist(freqlist *fl, itemset items, int sup)
 {
     freqitem* fi = (freqitem*) malloc(sizeof(freqitem));
-    // printf("insert itemset %p\n", items);
-    // print_itemset(items, fl->size);
+    printf("insert itemset %p\n", items);
+    print_itemset(items, fl->size);
     fi->items = items;
     fi->sup = sup;
     fi->next = NULL;
@@ -49,6 +49,8 @@ print_freqlist(freqlist *fl)
 void
 free_freqlist(freqlist *fl)
 {
+    if (fl == NULL)
+        return;
     freqitem *ptr = fl->list.next;
     while (ptr) {
         freqitem *tmp = ptr;

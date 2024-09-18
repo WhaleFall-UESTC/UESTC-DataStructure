@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "itemset.h"
+#include "freqlist.h"
 #include "database.h"
 #include "file.h"
 
