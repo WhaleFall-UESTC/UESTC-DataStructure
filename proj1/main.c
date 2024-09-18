@@ -12,10 +12,23 @@ typedef unsigned char bool;
 #define true 1
 #define false 0
 #define BUF 512
+#define RING_BUF 8
+#define RING_NEXT(p) (((p) + 1) % RING_BUF)
+#define RING_PRE(p)  (((p) + RING_BUF - 1) % RING_BUF)
 
 #define LWC_SUP    1    // filter whose sup is less than min_sup
 #define LWC_CHILD  2    // filter whose child is not frequent
-#define LWC_CUT    3    // filter both
+#define LWC_REPEAT 4    // filter those repeat
+#define LWC_ALL    7    // filter all
+
+#define TEST(no) do {   \
+    ring_buffer[no] = link_with_cut(ring_buffer[no-1], LWC_ALL); \
+    if (ring_buffer[no] == NULL) { \
+        free_freqlist(ring_buffer[no]); \
+        goto end; \
+    } \
+    print_freqlist(ring_buffer[no]); \
+} while (0);
 
 static unsigned outset = OUTPUT_DEFAULT;
 static char filename[BUF] = DEFAULT_FILE;
@@ -159,17 +172,38 @@ main(int argc, char *argv[])
 
     freqlist* fl1 = scan_db(db, min_support);
     // print_freqlist(fl1);
-    freqlist* fl2 = link_with_cut(fl1, LWC_SUP);
-    printf("first lwc success. fl2: %p\n", fl2);
-    if (fl2 != NULL)
-        print_freqlist(fl2);
-    printf("fl2 OK\n");
-    freqlist* fl3 = link_with_cut(fl2, LWC_CUT);
-    if (fl3 != NULL)
-        print_freqlist(fl3);
+    freqlist* ring_buffer[RING_BUF];
+    memset(ring_buffer, 0, RING_BUF * sizeof(freqlist*));
+    // int bufptr = 1;
+    ring_buffer[0] = link_with_cut(fl1, LWC_SUP);
+    if (ring_buffer[0] == NULL) {
+        free_freqlist(ring_buffer[0]);
+        goto end;
+    }
+    print_freqlist(ring_buffer[0]);
 
-    free_freqlist(fl3);
-    free_freqlist(fl2);
+    TEST(1);
+    TEST(2);
+    TEST(3);
+    TEST(4);
+    TEST(5);
+    TEST(6);
+
+
+    // while ((ring_buffer[bufptr] = 
+    //     link_with_cut(ring_buffer[RING_PRE(bufptr)], LWC_ALL)))
+    // {
+    //     print_freqlist(ring_buffer[bufptr]);
+    //     bufptr = RING_NEXT(bufptr);
+    //     printf("bufptr up to %d\n", bufptr);
+    //     if (ring_buffer[bufptr] != NULL)
+    //         free_freqlist(ring_buffer[bufptr]);
+    // }
+    
+end:
     free_freqlist(fl1);
+    for (int i = 0; i < RING_BUF; i++) 
+        free_freqlist(ring_buffer[i]);
     free_db(&db);
+    puts("Over");
 }

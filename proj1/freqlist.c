@@ -18,18 +18,28 @@ init_freqlist(freqlist* fl, int k, int size)
 void
 insert_freqlist(freqlist *fl, itemset items, int sup)
 {
+    freqitem* ptr = &fl->list;
+    if (fl->len == 0) 
+        goto load;
+    
+    while (ptr = ptr->next) {
+        if (contain(ptr->items, items, fl->size) == 0) {
+            return;
+        }
+        if (ptr->next == NULL)
+            break;
+    }
+
+load:
     freqitem* fi = (freqitem*) malloc(sizeof(freqitem));
-    printf("insert itemset %p\n", items);
-    print_itemset(items, fl->size);
+    // printf("insert itemset %p\n", items);
+    // print_itemset(items, fl->size);
     fi->items = items;
     fi->sup = sup;
     fi->next = NULL;
-
-    freqitem* ptr = &fl->list;
-    while (ptr->next)
-        ptr = ptr->next;
     ptr->next = fi;
     fl->len++;
+    
 }
 
 void
