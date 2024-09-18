@@ -104,6 +104,7 @@ void del_k_node_from_i(node* v, int i, int k) {
 }
 
 int main() {
+    srand((unsigned int)time(NULL));
     for (int j = 0; j < NSHOW; j++) {
         Log("Test %d", j + 1);
         int len = RAND(LEN);
@@ -116,6 +117,7 @@ int main() {
         del_k_node_from_i(v, i, k);
         printf("after del:\n");
         print_list(v);
+        free_list(v);
         printf("\n");
     }
 }
