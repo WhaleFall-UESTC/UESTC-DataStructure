@@ -7,12 +7,13 @@
 #include "freqlist.h"
 #include "database.h"
 #include "file.h"
+#include "heap.h"
+#include "debug.h"
 
-typedef unsigned char bool;
-#define true 1
-#define false 0
+// typedef unsigned char bool;
+// #define true 1
+// #define false 0
 #define BUF 512
-#define RING_BUF 8
 #define RING_NEXT(p) (((p) + 1) % RING_BUF)
 #define RING_PRE(p)  (((p) + RING_BUF - 1) % RING_BUF)
 
@@ -21,19 +22,13 @@ typedef unsigned char bool;
 #define LWC_REPEAT 4    // filter those repeat
 #define LWC_ALL    7    // filter all
 
-#define TEST(no) do {   \
-    ring_buffer[no] = link_with_cut(ring_buffer[no-1], LWC_ALL); \
-    if (ring_buffer[no] == NULL) { \
-        free_freqlist(ring_buffer[no]); \
-        goto end; \
-    } \
-    print_freqlist(ring_buffer[no]); \
-} while (0);
+#define SUP(sup) ((double) 1.0 * (sup) / db.len)
 
 static unsigned outset = OUTPUT_DEFAULT;
 static char filename[BUF] = DEFAULT_FILE;
 static int topn = DEFAULT_TOPN;
 static bool rand_file = false;
+static bool rand_only = false;
 static int min_support = DEFAULT_MIN_SUP;
 
 static database db;
@@ -47,11 +42,12 @@ prase_args(int argc, char *argv[])
         {"max"  , no_argument      , NULL, 'M'},
         {"top"  , optional_argument, NULL, 'T'},
         {"rand" , optional_argument, NULL, 'r'},
+        {"Rand" , optional_argument, NULL, 'R'},
         {"min-support", optional_argument, NULL, 'm'},
         {0      , 0                , NULL,  0 },
     };
     int o;
-    while ((o = getopt_long(argc, argv, "s::AMT::r::m::", table, NULL)) != -1) {
+    while ((o = getopt_long(argc, argv, "s::AMT::r::m::R::", table, NULL)) != -1) {
         switch (o) {
             case 's': if (optind < argc && argv[optind][0] != '-' && optarg == NULL) {
                         strcpy(filename, argv[optind++]);
@@ -63,6 +59,7 @@ prase_args(int argc, char *argv[])
                       if (optarg)
                         sscanf(optarg, "%d", &topn); 
                       break;
+            case 'R': rand_only = true;
             case 'r': rand_file = true; 
                       if (optind < argc && argv[optind][0] != '-' && optarg == NULL) {
                         strcpy(filename, argv[optind++]);
@@ -167,30 +164,78 @@ main(int argc, char *argv[])
 
     if (rand_file)
         random_file(filename);
+    if (rand_only)
+        return 0;
     read_file(&db, filename);
-    // print_db(db);
 
-    freqlist* fl1 = scan_db(db, min_support);
-    // print_freqlist(fl1);
-    freqlist* ring_buffer[RING_BUF];
-    memset(ring_buffer, 0, RING_BUF * sizeof(freqlist*));
-    // int bufptr = 1;
-    ring_buffer[0] = link_with_cut(fl1, LWC_SUP);
-    if (ring_buffer[0] == NULL) {
-        free_freqlist(ring_buffer[0]);
-        goto end;
-    }
-    print_freqlist(ring_buffer[0]);
-
-    TEST(1);
-    TEST(2);
-    TEST(3);
-    TEST(4);
-    TEST(5);
-    TEST(6);
+    freqlist* fl[BUF];
+    fl[0] = scan_db(db, min_support);
+    fl[1] = link_with_cut(fl[0], LWC_SUP);
+    int j = 2;
+    while ((fl[j] = link_with_cut(fl[j - 1], LWC_ALL)) != NULL) 
+        j++;
     
-end:
-    free_freqlist(fl1);
+    Log("Apriori Screening Finish");
+
+
+    heap *h = init_heap();
+    for (int i = 0; i < j; i++) 
+        add_freqlist(h, fl[i]);
+    
+    if (outset | OUTPUT_MAX) {
+        printf(L_RED "Maximal Frequent Pattern\n" NONE);
+        heap* hmax = init_heap();
+        freqitem* ptr = fl[j - 1]->list.next;
+        while (ptr) {
+            insert_heap(hmax, ptr->items, ptr->sup);
+            ptr = ptr->next;
+        } 
+        printf("sup       sets\n");
+        while (hmax->n) {
+            heapitem item = pop_heap(hmax);
+            printf("%.5lf   ", SUP(item.sup));
+            print_itemset(item.items, db.size);
+        }
+        puts("\n\n");
+    }
+
+    heapitem *top = (heapitem*) malloc(topn * sizeof(heapitem));
+    int ptop = 0;
+    if (outset |= OUTPUT_TOPN) {
+        printf(L_GREEN "Most %d Frequent Pattern\n" NONE, topn);
+        printf("sup       sets\n");
+        int cnt = topn;
+        while (cnt--) {
+            top[ptop] = pop_heap(h);
+            printf("%.5lf   ", SUP(top[ptop].sup));
+            print_itemset(top[ptop].items, db.size);
+            ptop++;
+        }
+        puts("\n\n");
+    }
+
+    if (outset | OUTPUT_ALL) {
+        printf(L_BLUE "All Frequent Pattern\n" NONE);
+        printf("sup       sets\n");
+        if (outset | OUTPUT_TOPN) {
+            for (int i = 0; i < ptop; i++) {
+                printf("%.5lf   ", SUP(top[i].sup));
+                print_itemset(top[i].items, db.size);
+            }
+        }
+        while (h->n) {
+            heapitem item = pop_heap(h);
+            printf("%.5lf   ", SUP(item.sup));
+            print_itemset(item.items, db.size);
+        }
+        puts("\n\n");
+    }
+
+    for (int i = 0; i < j; i++)
+        free_freqlist(fl[i]);
+    free_heap(h);
+    free(top);
     free_db(&db);
     puts("Over");
+    return 0;
 }

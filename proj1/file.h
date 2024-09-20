@@ -1,7 +1,7 @@
-#define OUTPUT_DEFAULT  0
 #define OUTPUT_ALL      1
 #define OUTPUT_MAX      2
 #define OUTPUT_TOPN     4
+#define OUTPUT_DEFAULT  OUTPUT_ALL
 
 #define DEFAULT_FILE "src.txt"
 #define DEFAULT_TOPN    5

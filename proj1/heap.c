@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "itemset.h"
 #include "freqlist.h"
 #include "heap.h"
@@ -18,10 +17,18 @@ init_heap()
     return ret;
 }
 
+void
+free_heap(heap* h)
+{
+    if (h == NULL) return;
+    if (h->pq != NULL) free(h->pq);
+    free(h);
+}
+
 static inline void
 resize_heap(heap* h, int len)
 {
-    Log("resize heap to %d", len);
+    // Log("resize heap to %d", len);
     heapitem* prev = h->pq;
     h->pq = (heapitem*) malloc(len * sizeof(heapitem));
     memset(h->pq, 0, len * sizeof(heapitem));
@@ -125,21 +132,31 @@ pop_heap(heap* h)
     memset(&h->pq[h->n + 1], 0, sizeof(heapitem));
     if ((h->n > 0) && (h->n == (h->capacity - 1) / 4) && h->capacity >= HEAP_INIT)
         resize_heap(h, h->capacity / 2);
-    assert(is_heap);
+    assert(is_heap(h));
     return ret;
 }
 
-/* test for heap */
-static void
-print_heap(heap *h)
+void
+add_freqlist(heap* h, freqlist *fl)
 {
-    Log("heap capacity = %d, n = %d", h->capacity, h->n);
-    int i = 1;
-    while (i <= (h->n + 1) / 2) {
-        printf("%d --- %d %d\n", h->pq[i].sup, h->pq[i * 2].sup, h->pq[i * 2 + 1].sup);
-        i++;
+    freqitem* ptr = fl->list.next;
+    while (ptr) {
+        insert_heap(h, ptr->items, ptr->sup);
+        ptr = ptr->next;
     }
 }
+
+/* test for heap */
+// static void
+// print_heap(heap *h)
+// {
+//     Log("heap capacity = %d, n = %d", h->capacity, h->n);
+//     int i = 1;
+//     while (i <= (h->n + 1) / 2) {
+//         printf("%d --- %d %d\n", h->pq[i].sup, h->pq[i * 2].sup, h->pq[i * 2 + 1].sup);
+//         i++;
+//     }
+// }
 
 // int 
 // main()

@@ -1,27 +1,32 @@
 CC = gcc
 CFLAGS = -g -Wall
-OBJS = main.o file.o itemset.o database.o freqlist.o
+OBJS = main.o file.o itemset.o database.o freqlist.o heap.o
 HEAP = heap.o itemset.o freqlist.o
 TARGET = main
 minsup = 10
+topn = 5
 TEST = test.txt
+SRC = src.txt
 
 all: $(TARGET)
 
 run: all
-		./$(TARGET)
+		./$(TARGET) -m$(minsup) -s $(SRC) -A -M -T$(topn)
+
+rand: all
+		./$(TARGET) -R $(SRC)
 
 test: all
-		./$(TARGET) -m$(minsup) -r $(TEST) -A -M -T5
+		./$(TARGET) -m$(minsup) -r $(TEST) -A -M -T$(topn)
 
 retry: all
-		./$(TARGET) -m$(minsup) -s $(TEST) -A -M -T5
+		./$(TARGET) -m$(minsup) -s $(TEST) -A -M -T$(topn)
 
 record: all
-		./$(TARGET) -m$(minsup) -s $(TEST) -A -M -T5 > record.txt
+		./$(TARGET) -m$(minsup) -s $(TEST) -A -M -T$(topn) > record.txt
 
 gdb: all
-		gdb --args $(TARGET) -m5 -r $(TEST) -A -M -T5
+		gdb --args $(TARGET) -m5 -r $(TEST) -A -M -T$(topn)
 
 heap: $(HEAP)
 		$(CC) $(CFLAGS) -o heap $(HEAP)

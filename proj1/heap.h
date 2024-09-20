@@ -20,4 +20,5 @@ typedef unsigned char bool;
 heap*           init_heap();
 void            insert_heap(heap* h, itemset items, int sup);
 heapitem        pop_heap(heap* h);
-
+void            add_freqlist(heap* h, freqlist *fl);
+void            free_heap(heap* h);
