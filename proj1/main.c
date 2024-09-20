@@ -146,7 +146,9 @@ main(int argc, char *argv[])
 
     freqlist* fl[BUF];
     fl[0] = scan_db(db, min_support);
+    print_freqlist(fl[0]);
     fl[1] = link_with_cut(fl[0], LWC_SUP);
+    if (fl[1] == NULL) goto end;
     int j = 2;
     while ((fl[j] = link_with_cut(fl[j - 1], LWC_ALL)) != NULL) 
         j++;
@@ -211,6 +213,7 @@ main(int argc, char *argv[])
         free_freqlist(fl[i]);
     free_heap(h);
     free(top);
+end:
     free_db(&db);
     puts("Over");
     return 0;
