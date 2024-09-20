@@ -10,9 +10,6 @@
 #include "heap.h"
 #include "debug.h"
 
-// typedef unsigned char bool;
-// #define true 1
-// #define false 0
 #define BUF 512
 #define RING_NEXT(p) (((p) + 1) % RING_BUF)
 #define RING_PRE(p)  (((p) + RING_BUF - 1) % RING_BUF)
@@ -81,21 +78,16 @@ link_with_cut(freqlist* fl, int flag)
     freqitem* pi = fl->list.next;
     bool enter_cycle = false;
     while (pi && pi->next) {
-        // printf("new pi at %p\n", pi);
         enter_cycle = true;
         freqitem* pj = pi->next;
         while (pj) {
-            // printf("new pj at %p\n", pj);
-            // printf("comb\n");
             itemset comb = conjunct(pi->items, pj->items, fl->size, fl->k + 1, ALLOC);
             if (comb == NULL) {
                 pj = pj->next;
                 continue;
             }
-            // printf("conjunct\n");
             bool pass_sup = true, pass_child = true;
             int sup = count_minsup(&db, comb);
-            // printf("SUP\n");
             if (flag & LWC_SUP) {
                 if (sup < min_support) 
                     pass_sup = false;
@@ -104,22 +96,16 @@ link_with_cut(freqlist* fl, int flag)
                 int* nos = (int*) malloc(fl->size * sizeof(int));
                 int nop = 0;
                 int len = fl->size / NBYTES;
-                // printf("get index, find:\n");
                 for (int i = 0; i < len; i++) {
                     for (int j = 0; j < NBITS; j++)
                         if (CHECKBIT(comb[i], j)) {
-                            // printf("%d ", NO(i, j));
                             nos[nop++] = NO(i, j);
                         }
                 }
-                // printf("\nget all index, comb and its children:\n");
-                // print_itemset(comb, fl->size);
                 for (int i = 0; i < nop; i++) {
                     itemset child = copy_itemset(comb, fl->size);
                     del_itemset(child, nos[i]);
-                    // print_itemset(child, fl->size);
                     if (itemset_in_freqlist(fl, child) < 0) {
-                        // printf("This child not freq\n");
                         free(child);
                         pass_child = false;
                         break;
@@ -130,27 +116,17 @@ link_with_cut(freqlist* fl, int flag)
             }
             
             if (pass_sup && pass_child) {
-                // printf("before insert comb %p\n", comb);
                 insert_freqlist(ret, comb, sup);
             } else {
-                // printf("before free comb %p\n", comb);
-                // print_itemset(comb, fl->size);;
                 free(comb);
-                // printf("after free comb %p\n", comb);
             }
-
             pj = pj->next;
-            // printf("pj renew OK\n");
         }
         pi = pi->next;
-        // printf("pi renew OK, new pi: %p, next: %p\n", pi, pi->next);
-        // puts("OK");
     }
 
     if (!enter_cycle || ret->len == 0) {
-        // printf("no next\n");
         free(ret);
-        // puts("free ret");
         return NULL;
     }
     return ret;

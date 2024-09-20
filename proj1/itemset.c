@@ -15,7 +15,6 @@ int
 contain(itemset p, itemset c, int size)
 {
     int len = size / NBYTES;
-    // printf("contain %p %p\n", p, c);
     for (int i = 0; i < len; i++) {
         if ((p[i] | c[i]) != p[i]) {
             return -1;
@@ -71,7 +70,6 @@ add_itemset(itemset items, int no)
 void
 del_itemset(itemset items, int no)
 {
-    // printf("delete number %d\n", no);
     no -= 1;
     int idx = no / NBITS;
     int off = no - idx * NBITS;
@@ -81,8 +79,6 @@ del_itemset(itemset items, int no)
 itemset
 copy_itemset(itemset items, int size)
 {
-    // printf("copy itemset %p\n", items);
-    // print_itemset(items, size);
     itemset ret = init_itemset(size);
     int len = size / NBYTES;
     for (int i = 0; i < len; i++) {

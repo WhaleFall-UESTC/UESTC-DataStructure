@@ -32,8 +32,6 @@ insert_freqlist(freqlist *fl, itemset items, int sup)
 
 load:
     freqitem* fi = (freqitem*) malloc(sizeof(freqitem));
-    // printf("insert itemset %p\n", items);
-    // print_itemset(items, fl->size);
     fi->items = items;
     fi->sup = sup;
     fi->next = NULL;

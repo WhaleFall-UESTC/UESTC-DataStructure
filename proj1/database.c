@@ -97,5 +97,4 @@ free_db(database* db)
         ptr = ptr->next;
         free(tmp);
     }
-    // free(db);
 }

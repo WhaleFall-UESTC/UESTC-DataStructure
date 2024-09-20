@@ -28,7 +28,6 @@ free_heap(heap* h)
 static inline void
 resize_heap(heap* h, int len)
 {
-    // Log("resize heap to %d", len);
     heapitem* prev = h->pq;
     h->pq = (heapitem*) malloc(len * sizeof(heapitem));
     memset(h->pq, 0, len * sizeof(heapitem));
@@ -145,33 +144,4 @@ add_freqlist(heap* h, freqlist *fl)
         ptr = ptr->next;
     }
 }
-
-/* test for heap */
-// static void
-// print_heap(heap *h)
-// {
-//     Log("heap capacity = %d, n = %d", h->capacity, h->n);
-//     int i = 1;
-//     while (i <= (h->n + 1) / 2) {
-//         printf("%d --- %d %d\n", h->pq[i].sup, h->pq[i * 2].sup, h->pq[i * 2 + 1].sup);
-//         i++;
-//     }
-// }
-
-// int 
-// main()
-// {
-//     heap* h = init_heap();
-//     Log("test inset");
-//     for (int i = 1; i <= 32; i++) {
-//         insert_heap(h, &i, i);
-//         print_heap(h);
-//     }
-//     Log("test del");
-//     for (int i = 1; i <= 32; i++) {
-//         heapitem tmp = pop_heap(h);
-//         Log("pop max sup %d", tmp.sup);
-//         print_heap(h);
-//     }
-// }
 
