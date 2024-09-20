@@ -188,22 +188,9 @@ main(int argc, char *argv[])
     TEST(4);
     TEST(5);
     TEST(6);
-
-
-    // while ((ring_buffer[bufptr] = 
-    //     link_with_cut(ring_buffer[RING_PRE(bufptr)], LWC_ALL)))
-    // {
-    //     print_freqlist(ring_buffer[bufptr]);
-    //     bufptr = RING_NEXT(bufptr);
-    //     printf("bufptr up to %d\n", bufptr);
-    //     if (ring_buffer[bufptr] != NULL)
-    //         free_freqlist(ring_buffer[bufptr]);
-    // }
     
 end:
     free_freqlist(fl1);
-    for (int i = 0; i < RING_BUF; i++) 
-        free_freqlist(ring_buffer[i]);
     free_db(&db);
     puts("Over");
 }

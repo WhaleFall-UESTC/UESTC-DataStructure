@@ -1,6 +1,7 @@
 CC = gcc
 CFLAGS = -g -Wall
 OBJS = main.o file.o itemset.o database.o freqlist.o
+HEAP = heap.o itemset.o freqlist.o
 TARGET = main
 minsup = 10
 TEST = test.txt
@@ -22,6 +23,10 @@ record: all
 gdb: all
 		gdb --args $(TARGET) -m5 -r $(TEST) -A -M -T5
 
+heap: $(HEAP)
+		$(CC) $(CFLAGS) -o heap $(HEAP)
+		./heap
+
 $(TARGET): $(OBJS)
 		$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
@@ -36,6 +41,9 @@ itemset.o: itemset.c
 
 freqlist.o: freqlist.c
 		$(CC) $(CFLAGS) -c freqlist.c
+
+heap.o: heap.c
+		$(CC) $(CFLAGS) -c heap.c
 
 clean:
 		rm -rf $(OBJS) $(TARGET)
