@@ -89,10 +89,11 @@ link_with_cut(freqlist* fl, int flag)
             bool pass_sup = true, pass_child = true;
             int sup = count_minsup(&db, comb);
             if (flag & LWC_SUP) {
-                if (sup < min_support) 
+                if (sup < min_support) {
                     pass_sup = false;
+                }
             }
-            if (flag & LWC_CHILD) {
+            if ((flag & LWC_CHILD) && pass_sup) {
                 int* nos = (int*) malloc(fl->size * sizeof(int));
                 int nop = 0;
                 int len = fl->size / NBYTES;
@@ -114,7 +115,6 @@ link_with_cut(freqlist* fl, int flag)
                 }
                 free(nos);
             }
-            
             if (pass_sup && pass_child) {
                 insert_freqlist(ret, comb, sup);
             } else {
@@ -144,9 +144,11 @@ main(int argc, char *argv[])
         return 0;
     read_file(&db, filename);
 
+    Log("Initalize database");
+
     freqlist* fl[BUF];
     fl[0] = scan_db(db, min_support);
-    print_freqlist(fl[0]);
+    // print_freqlist(fl[0]);
     fl[1] = link_with_cut(fl[0], LWC_SUP);
     if (fl[1] == NULL) goto end;
     int j = 2;

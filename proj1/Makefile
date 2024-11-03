@@ -1,9 +1,9 @@
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -O3
 OBJS = main.o file.o itemset.o database.o freqlist.o heap.o
 HEAP = heap.o itemset.o freqlist.o
 TARGET = main
-minsup = 8
+minsup = 4
 topn = 5
 TEST = test.txt
 SRC = src.txt

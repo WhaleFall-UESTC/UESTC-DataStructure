@@ -8,7 +8,7 @@
 #define DEFAULT_MIN_SUP 3
 
 #define RAND(l, u) (rand() % (l - u + 1) + l)
-#define MAX_LEN         54
+#define MAX_LEN         64
 #define MIN_LEN         10
 #define MAX_INDEX       128
 #define MIN_INDEX       64
