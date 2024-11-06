@@ -1,5 +1,7 @@
 import numpy as np
 from scipy import stats
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
 
 eps = 1e-5      # a small number
 
@@ -81,7 +83,7 @@ class DecisionTree:
 
         thresh = np.array([
             # generate threshold of 10 linear intervals for each feature
-            np.linspace(np.min(X[:, i]) + eps, np.max(X[:, i] - eps, num = 10))
+            np.linspace(np.min(X[:, i]) + eps, np.max(X[:, i] - eps), num=10)
             # X.shape[1]: number of columns
             for i in range(X.shape[1])
         ])
@@ -145,11 +147,11 @@ class DecisionTree:
 
 
 class RandomForest:
-    def __init__(self, max_depth=3, n=25, featrues=None, sample_size=None):
+    def __init__(self, max_depth=3, n=25, features=None, sample_size=None):
         self.n = n
         self.sample_size = sample_size
         self.decision_trees = [
-            DecisionTree(max_depth=max_depth, feature_labels=featrues)
+            DecisionTree(max_depth=max_depth, feature_labels=features)
             for i in range(n)
         ]
 
@@ -175,7 +177,38 @@ class RandomForest:
             predictions.append(tree.predict(X))
 
         total_pred = np.vstack(predictions);
-        model_prediction = stats.mode(total_pred).mode[0]
 
-        return model_prediction
+        mode_predictions = []
+        for i in range(total_pred.shape[1]):
+            mode_prediction = stats.mode(total_pred[:, i])[0]
+            mode_predictions.append(mode_prediction)
+    
+        return np.array(mode_predictions)
 
+
+
+def main():
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    rf = RandomForest(
+        max_depth=3,
+        n=25, 
+        features=iris.feature_names, 
+        sample_size=100
+    )
+    
+    rf.fit(X_train, y_train)
+    y_pred = rf.predict(X_test)
+
+    # print(y_pred)
+    # print(y_test)
+    
+    accuracy = np.mean(y_pred == y_test)
+    print(f"Model accuracy on test set: {accuracy:.2f}")
+
+
+if __name__ == '__main__':
+    main()

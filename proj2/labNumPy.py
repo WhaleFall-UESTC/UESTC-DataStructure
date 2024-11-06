@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.datasets import load_iris
 
 X = np.array([
     [1, 2, 3, 4],
@@ -62,3 +63,8 @@ print(np.unravel_index(15, X.shape))
 # (np.int64(3), np.int64(3))   matrix index (3, 3)
 
 
+iris = load_iris()
+X = iris.data
+y = iris.target
+print(X)
+print(y)
