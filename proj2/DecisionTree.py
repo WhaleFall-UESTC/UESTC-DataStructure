@@ -144,4 +144,38 @@ class DecisionTree:
         
 
 
+class RandomForest:
+    def __init__(self, max_depth=3, n=25, featrues=None, sample_size=None):
+        self.n = n
+        self.sample_size = sample_size
+        self.decision_trees = [
+            DecisionTree(max_depth=max_depth, feature_labels=featrues)
+            for i in range(n)
+        ]
+
+
+    def fit(self, X, y):
+        assert self.sample_size < len(y), "Sample size must be less than test size"
+
+        connect = np.concatenate((X, y.reshape(-1,1)), axis=1)
+
+        for tree in self.decision_trees:
+            samples = np.random.choice(list(range(len(connect))), size=self.sample_size, replace=True)
+            
+            train_data = connect[samples, :]
+            train_X = train_data[:, :-1]
+            train_y = train_data[:, -1:]
+            
+            tree.fit(train_X, train_y)
+
+    
+    def predict(self, X):
+        predictions = []
+        for tree in self.decision_trees:
+            predictions.append(tree.predict(X))
+
+        total_pred = np.vstack(predictions);
+        model_prediction = stats.mode(total_pred).mode[0]
+
+        return model_prediction
 
