@@ -2,6 +2,8 @@ import numpy as np
 from scipy import stats
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
+from sklearn.tree import export_graphviz
+import graphviz
 
 eps = 1e-5      # a small number
 
@@ -67,7 +69,7 @@ class DecisionTree:
             self.data = X
             self.labels = y
             # find the most frequent in y
-            self.pred = stats.mode(y).mode[0]
+            self.pred = stats.mode(y).mode
             return self
         
         gains = []
@@ -119,7 +121,7 @@ class DecisionTree:
             self.max_depth = 0
             self.data = original_X
             self.labels = y
-            self.pred = stats.mode(y).mode[0]
+            self.pred = stats.mode(y).mode
 
         return self
 
@@ -187,16 +189,11 @@ class RandomForest:
 
 
 
-def main():
-    iris = load_iris()
-    X = iris.data
-    y = iris.target
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+def testRandomForest(X_train, X_test, y_train, y_test, feature_names):
     rf = RandomForest(
         max_depth=3,
         n=25, 
-        features=iris.feature_names, 
+        features=feature_names, 
         sample_size=100
     )
     
@@ -207,8 +204,35 @@ def main():
     # print(y_test)
     
     accuracy = np.mean(y_pred == y_test)
-    print(f"Model accuracy on test set: {accuracy:.2f}")
+    print(f"RandomForest Model accuracy on test set: {accuracy:.2f}")
 
+
+def testDecisionTree(X_train, X_test, y_train, y_test, feature_names):
+    dt = DecisionTree(
+        max_depth=7,
+        feature_labels=feature_names,
+    )
+    
+    dt.fit(X_train, y_train)
+    y_pred = dt.predict(X_test)
+
+    # print(y_pred)
+    # print(y_test)
+    
+    accuracy = np.mean(y_pred == y_test)
+    print(f"DecisionTree Model accuracy on test set: {accuracy:.2f}")
+
+
+def main():
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    testDecisionTree(X_train, X_test, y_train, y_test, iris.feature_names)
+    testRandomForest(X_train, X_test, y_train, y_test, iris.feature_names)
+    
 
 if __name__ == '__main__':
     main()
+    

@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.datasets import load_iris
+from scipy import stats
 
 X = np.array([
     [1, 2, 3, 4],
@@ -68,3 +69,6 @@ X = iris.data
 y = iris.target
 print(X)
 print(y)
+
+my = stats.mode(y).mode
+print(my, type(my))
