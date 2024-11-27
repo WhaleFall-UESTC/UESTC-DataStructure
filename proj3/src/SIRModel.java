@@ -53,8 +53,6 @@ public class SIRModel {
         return 1.0 * nInfected / N;
     }
 
-    public double stimulate()
-
     public double stimulate() {
         var allIds = set2Array(graph.keySet());
         return stimulate(
