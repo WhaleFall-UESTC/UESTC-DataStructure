@@ -119,27 +119,5 @@ public class PageRank {
         return new RankResult(sortedPR, indices);
     }
 
-    public Integer[] SIRStimnulate() {
-        var SIR = new SIRModel(graphOut);
-        return SIR.stimulate();
-    }
 
-    public double accuracy() {
-        var SIRResult = SIRStimnulate();
-        var rankResult = rank(500);
-        int n = SIRResult.length;
-        var PRResult = rankResult.getLargestNPage(n).getIds();
-
-        var test = new HashMap<Integer, Boolean>(n);
-        for (int i : SIRResult) {
-            test.put(i, true);
-        }
-        int cnt = 0;
-        for (int i : PRResult) {
-            if (test.getOrDefault(i, false))
-                cnt++;
-        }
-
-        return 1.0 * cnt / n;
-    }
 }
