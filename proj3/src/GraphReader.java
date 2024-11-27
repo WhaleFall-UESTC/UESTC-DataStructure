@@ -68,6 +68,32 @@ public class GraphReader {
         return graph;
     }
 
+    public int[] getSortedIds() {
+        var set = new HashSet<Integer>(nodes);
+        var in = getScanner();
+        String lineRead;
+        do {
+            lineRead = in.nextLine();
+        } while (lineRead.charAt(0) == '#');
+
+        var sc = new Scanner(lineRead);
+        set.add(sc.nextInt());
+        set.add(sc.nextInt());
+        sc.close();
+
+        while (in.hasNextInt())
+            set.add(in.nextInt());
+        assert set.size() == nodes : "Failed to read nodes. Should read " + nodes + " but get " + set.size();
+
+        int[] ret = new int[nodes];
+        int ptr = 0;
+        for (int id : set) {
+            ret[ptr++] = id;
+        }
+        Arrays.sort(ret);
+        return ret;
+    }
+
     private int readNumberOf(String s) {
         var sc = getScanner();
         String lineRead;

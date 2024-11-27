@@ -7,12 +7,13 @@ public class PageRank {
     private final Map<Integer, int[]> graphIn;   // List: the index of prev node
     private final int[] ids;    // id of nodes
     private final int[] Ls;     // out degree of nodes
+    private static final int DEFALUT_RANK_TURNS = 500;
 
     public PageRank(String graphPath) {
         var gr = new GraphReader(graphPath);
         graphOut = gr.read(GraphReader.OUT);
         N = gr.readNumberOfNodes();
-        ids = getSortedIds();
+        ids = gr.getSortedIds();
         Ls = new int[N];
 
         List<Integer> outDegreeZero = new ArrayList<>();
@@ -40,16 +41,16 @@ public class PageRank {
         return idx >= 0 && idx < N;
     }
 
-    private int[] getSortedIds() {
-        int[] ret = new int[N];
-        int ptr = 0;
-        for (var key : graphOut.keySet()) {
-            ret[ptr++] = key;
-        }
-        assert ptr == N;
-        Arrays.sort(ret);
-        return ret;
-    }
+//    private int[] getSortedIds() {
+//        int[] ret = new int[N];
+//        int ptr = 0;
+//        for (var key : graphOut.keySet()) {
+//            ret[ptr++] = key;
+//        }
+//        assert ptr == N;
+//        Arrays.sort(ret);
+//        return ret;
+//    }
 
     /**
      * get out degree of a node
@@ -57,8 +58,8 @@ public class PageRank {
      * @return out degree of the node, -1 if id is illegal
      */
     private int L(int idx) {
-        var nodeList = graphOut.get(ids[idx]);
-        return nodeList.size();
+        var nodeList = graphOut.getOrDefault(ids[idx], null);
+        return nodeList == null ? 0 : nodeList.size();
     }
 
     /**
@@ -72,7 +73,9 @@ public class PageRank {
         if (!checkIdx(idx))
             return -1;
         int id = ids[idx];
-        var fromNodeList = graphIn.get(id);
+        var fromNodeList = graphIn.getOrDefault(id, null);
+        if (fromNodeList == null)
+            return 0;
         double ret = 0;
         for (int index : fromNodeList) {
             ret += PR[index] / Ls[index];
@@ -116,8 +119,28 @@ public class PageRank {
         for (int i = 0; i < indices.length; i++)
             indices[i] = ids[indices[i]];
 
-        return new RankResult(sortedPR, indices);
+        Map<Integer, int[]> copyGraphIn = new HashMap<>();
+        for (int id : graphIn.keySet()) {
+            var idxList = graphIn.get(id);
+            int len = idxList.length;
+            var idList = new int[len];
+            for (int i = 0; i < len; i++)
+                idList[i] = ids[idxList[i]];
+            copyGraphIn.put(id, idList);
+        }
+
+        return new RankResult(sortedPR, indices, copyGraphIn);
     }
 
+    public RankResult rank() { return rank(DEFALUT_RANK_TURNS); }
 
+    /**
+     * compare infectiousness between pagerank and random select
+     * @return a double array containing the result of stimulation, the first is pagerank's. the second is random selection's;
+     */
+    public double[] testSIR() {
+        var rankResult = rank();
+        return rankResult.testSIR();
+
+    }
 }
