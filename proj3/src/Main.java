@@ -1,6 +1,5 @@
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -20,7 +19,6 @@ public class Main {
         System.out.println(pageRankResult.getLargestNPage(15));
         var testResult = pr.testSIR();
         printTest("Page Rank", testResult[0]);
-//        printTest("Largest In Degree", testResult[1]);
         printTest("Randomly Select", testResult[2]);
         System.out.println("\n----------------------------------------------------------\n\n\n");
     }

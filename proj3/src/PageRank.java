@@ -41,17 +41,6 @@ public class PageRank {
         return idx >= 0 && idx < N;
     }
 
-//    private int[] getSortedIds() {
-//        int[] ret = new int[N];
-//        int ptr = 0;
-//        for (var key : graphOut.keySet()) {
-//            ret[ptr++] = key;
-//        }
-//        assert ptr == N;
-//        Arrays.sort(ret);
-//        return ret;
-//    }
-
     /**
      * get out degree of a node
      * @param idx index of the node, ids[idx] = id of the node

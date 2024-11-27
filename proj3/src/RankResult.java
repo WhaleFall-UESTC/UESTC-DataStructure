@@ -37,20 +37,10 @@ public record RankResult(double[] sortedPR, Integer[] sortedIds, Map<Integer, in
     public double[] testSIR() {
         var ret = new double[3];
         var sir = new SIRModel(graphIn);
-
         int n = SIRModel.DEFAULT_INITIAL_INFECTED_NUMBER;
         var selectPR = getLargestNPage(n).getIds();
-        var selectInDegree = getLargestInDegreeIds(n);
-
         ret[0] = sir.stimulate(selectPR);
-        ret[1] = sir.stimulate(selectInDegree);
         ret[2] = sir.stimulate();
         return ret;
-    }
-
-    public Integer[] getLargestInDegreeIds(int n) {
-        var ids = graphIn.keySet().toArray(Integer[]::new);
-        Arrays.sort(ids, (i1, i2) -> graphIn.get(i2).length - graphIn.get(i1).length);
-        return Arrays.copyOf(ids, n);
     }
 }
