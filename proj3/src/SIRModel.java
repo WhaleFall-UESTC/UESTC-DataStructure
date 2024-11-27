@@ -7,9 +7,9 @@ public class SIRModel {
     private final Map<Integer, Person> persons;
     private Map<Integer, Person> theInfected;
     private enum Status {Susceptible, Infected, Recovered};
-    private static final double DEFAULT_INFECT_PROBABILITY = 0.72;
-    private static final double DEFAULT_RECOVER_PROBABILITY = 0.5;
-    private static final int DEFAULT_INITIAL_INFECTED_NUMBER = 11;
+    public static final double DEFAULT_INFECT_PROBABILITY = 0.72;
+    public static final double DEFAULT_RECOVER_PROBABILITY = 0.5;
+    public static final int DEFAULT_INITIAL_INFECTED_NUMBER = 11;
 
     public SIRModel(Map<Integer, int[]> graph) {
         this.graph = graph;
@@ -36,11 +36,12 @@ public class SIRModel {
      * @return The proportion of people who have been infected with the disease
      */
     public double stimulate(Integer[] initialInfectedId,
-        double infectP, double recoverP)
+                            double infectP, double recoverP)
     {
         initializeInfected(initialInfectedId);
         while (!theInfected.isEmpty()) {
-            for (var p : theInfected.values()) {
+            var curInfected = theInfected.values().toArray(Person[]::new);
+            for (var p : curInfected) {
                 var neighborIds = graph.get(p.getId());
                 for (var neighborId : neighborIds) {
                     var neighbor = persons.get(neighborId);
@@ -51,6 +52,11 @@ public class SIRModel {
         }
 
         return 1.0 * nInfected / N;
+    }
+
+    public double stimulate(Integer[] initialInfectedId) {
+        return stimulate(initialInfectedId,
+                DEFAULT_INFECT_PROBABILITY, DEFAULT_RECOVER_PROBABILITY);
     }
 
     public double stimulate() {
@@ -100,7 +106,7 @@ public class SIRModel {
         }
 
         public void visited(double infectedP) {
-            if (chance(infectedP)) {
+            if (status == Status.Susceptible && chance(infectedP)) {
                 infected();
             }
         }
