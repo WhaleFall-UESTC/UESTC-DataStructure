@@ -7,8 +7,8 @@ public class SIRModel {
     private final Map<Integer, Person> persons;
     private Map<Integer, Person> theInfected;
     private enum Status {Susceptible, Infected, Recovered};
-    public static final double DEFAULT_INFECT_PROBABILITY = 0.72;
-    public static final double DEFAULT_RECOVER_PROBABILITY = 0.5;
+    public static final double DEFAULT_BETA = 0.4;
+    public static final double DEFAULT_GAMMA = 1;
     public static final int DEFAULT_INITIAL_INFECTED_NUMBER = 11;
 
     public SIRModel(Map<Integer, int[]> graph) {
@@ -20,6 +20,8 @@ public class SIRModel {
     }
 
     private void initializeInfected(Integer[] initialInfectedId) {
+        Arrays.sort(initialInfectedId);
+        System.out.println("Initializing infected " + Arrays.toString(initialInfectedId));
         nInfected = 0;
         theInfected = new HashMap<>(initialInfectedId.length * 2);
         for (int id : initialInfectedId) {
@@ -38,8 +40,12 @@ public class SIRModel {
     public double stimulate(Integer[] initialInfectedId,
                             double infectP, double recoverP)
     {
+        for (var p : persons.values()) {
+            p.formatted();
+        }
         initializeInfected(initialInfectedId);
         while (!theInfected.isEmpty()) {
+//            System.out.println(theInfected.size() + " " + Arrays.toString(theInfected.keySet().toArray(Integer[]::new)));
             var curInfected = theInfected.values().toArray(Person[]::new);
             for (var p : curInfected) {
                 var neighborIds = graph.get(p.getId());
@@ -50,21 +56,21 @@ public class SIRModel {
                 p.heal(recoverP);
             }
         }
-
+//        System.out.println("nInfected: " + nInfected);
         return 1.0 * nInfected / N;
     }
 
     public double stimulate(Integer[] initialInfectedId) {
         return stimulate(initialInfectedId,
-                DEFAULT_INFECT_PROBABILITY, DEFAULT_RECOVER_PROBABILITY);
+                DEFAULT_BETA, DEFAULT_GAMMA);
     }
 
     public double stimulate() {
         var allIds = set2Array(graph.keySet());
         return stimulate(
                 selectRandomly(allIds, DEFAULT_INITIAL_INFECTED_NUMBER),
-                DEFAULT_INFECT_PROBABILITY,
-                DEFAULT_RECOVER_PROBABILITY
+                DEFAULT_BETA,
+                DEFAULT_GAMMA
         );
     }
 
@@ -93,6 +99,10 @@ public class SIRModel {
         }
 
         public int getId() { return id; }
+
+        public void formatted() {
+            status = Status.Susceptible;
+        }
 
         public void recovered() {
             status = Status.Recovered;

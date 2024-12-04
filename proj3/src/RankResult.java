@@ -1,7 +1,12 @@
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Map;
 
 public record RankResult(double[] sortedPR, Integer[] sortedIds, Map<Integer, int[]> graphIn) {
+    public static final int PAGERANK = 0;
+    public static final int DEGREE = 1;
+    public static final int RANDOM = 2;
+
     public String toString() {
         var sb = new StringBuilder();
         sb.append("    \t\tID  \t\tPR     \t\tIn Degree\n");
@@ -39,8 +44,19 @@ public record RankResult(double[] sortedPR, Integer[] sortedIds, Map<Integer, in
         var sir = new SIRModel(graphIn);
         int n = SIRModel.DEFAULT_INITIAL_INFECTED_NUMBER;
         var selectPR = getLargestNPage(n).getIds();
-        ret[0] = sir.stimulate(selectPR);
-        ret[2] = sir.stimulate();
+        var selectDegree = graphIn.entrySet().stream()
+                .sorted(Map.Entry.<Integer, int[]>comparingByValue(new Comparator<int[]>() {
+                    @Override
+                    public int compare(int[] v1, int[] v2) {
+                        return v2.length - v1.length;
+                    }
+                }))
+                .limit(n)
+                .map(Map.Entry::getKey)
+                .toArray(Integer[]::new);
+        ret[PAGERANK] = sir.stimulate(selectPR);
+        ret[DEGREE] = sir.stimulate(selectDegree);
+        ret[RANDOM] = sir.stimulate();
         return ret;
     }
 }
