@@ -196,4 +196,4 @@ if __name__ == '__main__':
     assert len(sys.argv) >= 3
     file = sys.argv[1]
     min_support = float(sys.argv[2])
-    print_maximal(1 << 31, mine(file, min_support))
+    print(mine(file, min_support))
