@@ -5,7 +5,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         List<String> filePaths = getFilePaths("test");
-//        testFile("test\\CA-HepTh.txt");
+        testFile("test\\CA-HepTh.txt");
         for (String filePath : filePaths) {
             testFile(filePath);
         }
@@ -15,13 +15,13 @@ public class Main {
         var pr = new PageRank(filePath);
         var pageRankResult = pr.rank();
         System.out.println("Test " + filePath);
-        System.out.println("Page Rank Result: Largest 15 PR:");
-        System.out.println(pageRankResult.getLargestNPage(15));
+//        System.out.println("Page Rank Result: Largest 15 PR:");
+//        System.out.println(pageRankResult.getLargestNPage(15));
         var testResult = pr.testSIR();
         printTest("Page Rank", testResult[RankResult.PAGERANK]);
         printTest("Largest Degree", testResult[RankResult.DEGREE]);
         printTest("Randomly Select", testResult[RankResult.RANDOM]);
-        System.out.println("\n----------------------------------------------------------\n\n\n");
+        System.out.println("\n----------------------------------------------------------\n");
     }
 
     private static void printTest(String test, double res) {
